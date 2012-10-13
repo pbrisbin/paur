@@ -1,29 +1,49 @@
 # Paur
 
-TODO: Write a gem description
+Paur POSTs packages to the AUR.
 
 ## Installation
 
-Add this line to your application's Gemfile:
-
-    gem 'paur'
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install paur
+~~~
+$ git clone https://github.com/pbrisbin/paur
+$ cd paur
+$ bundle
+$ rake install
+~~~
 
 ## Usage
 
-TODO: Write usage instructions here
+Add the following to a `Rakefile` within your project directory:
 
-## Contributing
+~~~ { .ruby }
+require 'paur/task'
 
-1. Fork it
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
+#
+# Omit the block to use default values (which are shown below)
+#
+Paur::Task.new do |t|
+
+  t.aur_username = ENV['AUR_USERNAME']
+
+  t.aur_password = ENV['AUR_PASSWORD']
+
+  t.editor = ENV['EDITOR']
+
+  t.exclude %w[ .git README.md LICENSE.txt ]
+
+  t.pre_edit do
+    #
+    # ...
+    #
+  end
+
+  t.post_edit do
+    #
+    # ...
+    #
+  end
+
+end
+
+task :default => :paur
+~~~
