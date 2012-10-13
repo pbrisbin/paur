@@ -6,11 +6,11 @@ require 'paur/version'
 Gem::Specification.new do |gem|
   gem.name          = "paur"
   gem.version       = Paur::VERSION
-  gem.authors       = ["TODO: Write your name"]
-  gem.email         = ["TODO: Write your email address"]
-  gem.description   = %q{TODO: Write a gem description}
-  gem.summary       = %q{TODO: Write a gem summary}
-  gem.homepage      = ""
+  gem.authors       = ["Patrick Brisbin"]
+  gem.email         = ["pbrisbin@gmail.com"]
+  gem.description   = %q{Paur POSTs packages to the AUR.}
+  gem.summary       = %q{Paur provies a rake task for uploading your own sofware to the AUR.}
+  gem.homepage      = "https://github.com/pbrisbin/paur"
 
   gem.files         = `git ls-files`.split($/)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
