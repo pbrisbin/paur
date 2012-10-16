@@ -33,8 +33,3 @@ Paur::Task.new
 ~~~
 
 Then, `rake upload`.
-
-### Caveats
-
-Currently the final step errors saying the form token is invalid, I'm 
-still debugging this.
