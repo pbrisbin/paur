@@ -13,16 +13,16 @@ $ rake install
 
 ## Usage
 
-Run paur from within a directory containing a PKGBUILD (and any 
-to-be-included source files). Category defaults to "system".
+Export the `AUR_USERNAME` and `AUR_PASSWORD` environment variables.
 
 ~~~
 Usage: paur [options]
     -c, --category CATEGORY
+    -b, --build-dir DIRECTORY
     -v, --verbose
 ~~~
 
-Paur also provides a Rake task:
+## Rake
 
 ~~~ { .ruby }
 #
@@ -30,18 +30,12 @@ Paur also provides a Rake task:
 #
 require 'paur/task'
 
-Paur::Task.new do |t|
-  t.category = 'system'
-end
+Paur::Task.new
 ~~~
 
-Then type `rake upload`.
+Then, `rake upload`.
 
 ### Caveats
 
 Currently the final step errors saying the form token is invalid, I'm 
 still debugging this.
-
-The process leaves both the `src` directory and generated taurball 
-present after it completes. I haven't decided yet how to automate that 
-cleanup.
