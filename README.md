@@ -18,32 +18,18 @@ Add the following to a `Rakefile` within your project directory:
 ~~~ { .ruby }
 require 'paur/task'
 
-#
-# Omit the block to use default values (which are shown below)
-#
-Paur::Task.new do |t|
-
+# All attributes have default values (shown below).
+Paur::Task.new(:upload) do |t|
   t.aur_username = ENV['AUR_USERNAME']
-
   t.aur_password = ENV['AUR_PASSWORD']
 
   t.editor = ENV['EDITOR']
 
-  t.exclude %w[ .git README.md LICENSE.txt ]
+  # Use t.exclude to add to existing
+  t.excludes = %w[ .git .gitignore README.md ]
 
-  t.pre_edit do
-    #
-    # ...
-    #
-  end
-
-  t.post_edit do
-    #
-    # ...
-    #
-  end
-
+  t.category = 16
 end
-
-task :default => :paur
 ~~~
+
+Then type `rake upload`
