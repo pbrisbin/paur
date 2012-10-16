@@ -7,10 +7,13 @@ module Paur
       attr_reader :category, :verbose
 
       def run(argv)
+        @category = 'system'
+        @verbose  = false
+
         OptionParser.new do |o|
           o.banner = 'Usage: paur [options]'
-          o.on('-c', '--category') { |c| @category = c }
-          o.on('-v', '--verbose')  { @verbose = true }
+          o.on('-c', '--category CATEGORY') { |c| @category = c    }
+          o.on('-v', '--verbose'          ) {     @verbose  = true }
         end.parse!(argv)
 
         execute('makepkg -g >> ./PKGBUILD')
@@ -22,6 +25,8 @@ module Paur
 
         s = Submission.new(taurball, category)
         execute(s.submit_command)
+
+        # TODO: remove src? remove the taurball?
 
       rescue Exception => ex
         # explode naturally
