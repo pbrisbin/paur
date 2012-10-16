@@ -43,3 +43,11 @@ Paur::Task.new(:upload) do |t|
   t.category = 16 # System
 end
 ~~~
+
+### Caveats
+
+It doesn't upload yet, just builds the Taurball
+
+After `makepkg -g` is run, the `src` directory that is created is 
+removed. I don't know how `makepkg` behaves if you've already got a 
+`src` directory here, or what I should do about it.
