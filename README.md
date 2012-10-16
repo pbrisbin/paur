@@ -18,7 +18,6 @@ Export the `AUR_USERNAME` and `AUR_PASSWORD` environment variables.
 ~~~
 Usage: paur [options]
     -c, --category CATEGORY
-    -b, --build-dir DIRECTORY
     -v, --verbose
 ~~~
 
