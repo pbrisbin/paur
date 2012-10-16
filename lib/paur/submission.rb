@@ -36,14 +36,18 @@ module Paur
 
     # POST to index an return the session cookie
     def cookie
-      data = [
-        "user=#{ENV['AUR_USERNAME']}",
-        "passwd=#{ENV['AUR_PASSWORD']}",
-        'remember_me=1'
-      ].join('&')
+      unless @cookie
+        data = [
+          "user=#{ENV['AUR_USERNAME']}",
+          "passwd=#{ENV['AUR_PASSWORD']}",
+          'remember_me=1'
+        ].join('&')
 
-      res = http.post('/index.php', data)
-      res['Set-cookie'] or raise 'Authentication failed'
+        res = http.post('/index.php', data)
+        @cookie = res['Set-cookie'] or raise 'Authentication failed'
+      end
+
+      @cookie
     end
 
     # GET the submission form and parse the hidden token input
