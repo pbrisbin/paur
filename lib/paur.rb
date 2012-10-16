@@ -24,21 +24,22 @@ module Paur
         taurball = Dir.glob('*.src.tar.gz').first
         execute("tar tf '#{taurball}'") if verbose
 
-        s = Submission.new(taurball, category)
-        html = Nokogiri::HTML(`#{s.submit_command}`)
+        cmd  = Submission.new(taurball, category).submit_command
+        html = Nokogiri::HTML(`#{cmd}`)
 
         # if this div is present, there was some error
-        pkgoutput = html.css('.pkgoutput').children.first rescue nil
-        raise "#{pkgoutput}" if pkgoutput
+        pkgoutput = html.css('.pkgoutput')
+        raise "#{pkgoutput.children}" if pkgoutput
 
-        File.unlink(taurball)
+        puts 'Success.'
 
       rescue => ex
-        if verbose
-          raise ex # explode naturally
-        else
-          $stderr.puts("error: #{ex}")
-          exit 1
+        $stderr.puts("error: #{ex}")
+        $stderr.puts("#{ex.backtrace}") if verbose
+        exit 1
+      ensure
+        if taurball && File.exists?(taurball)
+          File.unlink(taurball)
         end
       end
 
