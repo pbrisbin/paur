@@ -26,14 +26,13 @@ module Paur
         s = Submission.new(taurball, category)
         execute(s.submit_command)
 
-        # TODO: remove src? remove the taurball?
-
       rescue Exception => ex
-        # explode naturally
-        raise ex if verbose
-
-        $stderr.puts("#{ex}")
-        exit 1
+        if verbose
+          raise ex # explode naturally
+        else
+          $stderr.puts("#{ex}")
+          exit 1
+        end
       end
 
       private
