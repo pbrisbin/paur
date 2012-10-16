@@ -1,4 +1,5 @@
 require 'optparse'
+require 'nokogiri'
 require 'paur/submission'
 
 module Paur
@@ -24,8 +25,11 @@ module Paur
         execute("tar tf '#{taurball}'") if verbose
 
         s = Submission.new(taurball, category)
-        puts(s.submit_command)
-        #execute(s.submit_command)
+        html = Nokogiri::HTML(`#{s.submit_command}`)
+
+        # if this div is present, there was some error
+        pkgoutput = html.css('.pkgoutput').children.first rescue nil
+        raise "#{pkgoutput}" if pkgoutput
 
         File.unlink(taurball)
 
@@ -33,7 +37,7 @@ module Paur
         if verbose
           raise ex # explode naturally
         else
-          $stderr.puts("#{ex}")
+          $stderr.puts("error: #{ex}")
           exit 1
         end
       end
