@@ -1,23 +1,28 @@
-require 'paur/utils'
-require 'paur/aur'
-require 'paur/config'
-require 'paur/tar'
-require 'paur/version'
-require 'fileutils'
-
 module Paur
   class Main
-    include Utils
-    include FileUtils
+    class << self
+      attr_reader :verbose
 
-    def run(config, verbose)
-      execute("makepkg -g >> ./PKGBUILD", verbose)
-      execute("#{config.editor} ./PKGBUILD", verbose)
+      def run(argv)
+        @verbose = argv.include?('--verbose')
 
-      rm_r 'src', :verbose => verbose
+        execute('makepkg -g >> ./PKGBUILD')
+        execute("#{ENV['EDITOR']} ./PKGBUILD")
+        execute('makepkg --source')
 
-      taurball = Tar.new(Dir.pwd, verbose).compress(config.excludes)
-      Aur.new(taurball, config.category, verbose).upload
+        taurball = Dir.glob('*.src.tar.gz')
+        puts "Uploading #{taurball}"
+      end
+
+      private
+
+      def execute(cmd)
+        puts cmd if verbose
+
+        unless system(cmd)
+          raise "#{cmd}: non-zero exit (#{$?}), aborting."
+        end
+      end
     end
   end
 end
