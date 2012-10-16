@@ -41,4 +41,3 @@ package() {
   gem install --no-user-install --ignore-dependencies -i "$pkgdir$_gemdir" \
     $_pkgname-$_pkgver.gem -n "$pkgdir/usr/bin"
 }
-md5sums=()
