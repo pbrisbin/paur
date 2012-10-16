@@ -1,17 +1,34 @@
+require 'optparse'
+require 'paur/submission'
+
 module Paur
   class Main
     class << self
-      attr_reader :verbose
+      attr_reader :category, :verbose
 
       def run(argv)
-        @verbose = argv.include?('--verbose')
+        OptionParser.new do |o|
+          o.banner = 'Usage: paur [options]'
+          o.on('-c', '--category') { |c| @category = c }
+          o.on('-v', '--verbose')  { @verbose = true }
+        end.parse!(argv)
 
         execute('makepkg -g >> ./PKGBUILD')
         execute("#{ENV['EDITOR']} ./PKGBUILD")
         execute('makepkg --source')
 
-        taurball = Dir.glob('*.src.tar.gz')
-        puts "Uploading #{taurball}"
+        taurball = Dir.glob('*.src.tar.gz').first
+        execute("tar tf '#{taurball}'") if verbose
+
+        s = Submission.new(taurball, category)
+        execute(s.submit_command)
+
+      rescue Exception => ex
+        # explode naturally
+        raise ex if verbose
+
+        $stderr.puts("#{ex}")
+        exit 1
       end
 
       private
@@ -20,7 +37,7 @@ module Paur
         puts cmd if verbose
 
         unless system(cmd)
-          raise "#{cmd}: non-zero exit (#{$?}), aborting."
+          raise "#{$?}, command was #{cmd}"
         end
       end
     end
