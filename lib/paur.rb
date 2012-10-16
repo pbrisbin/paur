@@ -26,7 +26,7 @@ module Paur
         s = Submission.new(taurball, category)
         execute(s.submit_command)
 
-      rescue Exception => ex
+      rescue => ex
         if verbose
           raise ex # explode naturally
         else
