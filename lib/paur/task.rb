@@ -20,9 +20,7 @@ module Paur
           options << '--verbose' if verbose
           options << "--category #{category}" if category
 
-          unless system('paur', *options)
-            raise "paur returned non-zero: #{$?}"
-          end
+          system('paur', *options)
         end
       end
     end
