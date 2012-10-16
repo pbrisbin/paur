@@ -29,13 +29,15 @@ module Paur
 
         # if this div is present, there was some error
         pkgoutput = html.css('.pkgoutput')
-        raise "#{pkgoutput.children}" if pkgoutput
+        if pkgoutput && pkgoutput.any?
+          raise "#{pkgoutput.children}"
+        end
 
         puts 'Success.'
 
       rescue => ex
         $stderr.puts("error: #{ex}")
-        $stderr.puts("#{ex.backtrace}") if verbose
+        $stderr.puts("#{ex.backtrace.join("\n")}") if verbose
         exit 1
       ensure
         if taurball && File.exists?(taurball)
