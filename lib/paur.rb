@@ -17,14 +17,14 @@ module Paur
           o.on('-v', '--verbose') { @verbose = true }
         end.parse!(argv)
 
-        execute("makepkg -g >> ./PKGBUILD")
+        execute("makepkg -c -g >> ./PKGBUILD")
         execute("#{ENV['EDITOR'] || 'vi'} ./PKGBUILD")
         execute("makepkg --source")
 
         taurball = Dir.glob('*.src.tar.gz').first
         execute("tar tf '#{taurball}'") if verbose
 
-        cmd  = Submission.new(taurball, category).submit_command
+        cmd  = Submission.new.command_for(taurball, category)
         html = Nokogiri::HTML(`#{cmd}`)
 
         # if this div is present, there was some error
