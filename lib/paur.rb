@@ -17,9 +17,9 @@ module Paur
           o.on('-v', '--verbose') { @verbose = true }
         end.parse!(argv)
 
-        execute("makepkg -c -g >> ./PKGBUILD")
+        execute("makepkg --clean --geninteg >> ./PKGBUILD")
         execute("#{ENV['EDITOR'] || 'vi'} ./PKGBUILD")
-        execute("makepkg --source")
+        execute("makepkg --clean --source")
 
         taurball = Dir.glob('*.src.tar.gz').first
         execute("tar tf '#{taurball}'") if verbose
