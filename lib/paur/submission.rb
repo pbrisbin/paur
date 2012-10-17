@@ -4,81 +4,60 @@ require 'uri'
 
 module Paur
   class Submission
-    AUR = 'https://aur.archlinux.org'
+    AUR = 'aur.archlinux.org'
 
-    CATEGORIES = {
-      'daemons'    => 2,
-      'devel'      => 3,
-      'editors'    => 4,
-      'emulators'  => 5,
-      'games'      => 6,
-      'gnome'      => 7,
-      'i18n'       => 8,
-      'kde'        => 9,
-      'kernels'    => 19,
-      'lib'        => 10,
-      'modules'    => 11,
-      'multimedia' => 12,
-      'network'    => 13,
-      'office'     => 14,
-      'science'    => 15,
-      'system'     => 16,
-      'x11'        => 17,
-      'xfce'       => 18
+    CREDENTIALS = {
+      'user'        => ENV['AUR_USERNAME'],
+      'passwd'      => ENV['AUR_PASSWORD'],
+      'remember_me' => 1
     }
 
-    attr_reader :taurball, :category
+    def initialize
+      http = Net::HTTP.new(AUR, 443)
+      http.use_ssl = true
 
-    def initialize(taurball, category)
-      @taurball = taurball or raise 'Taurball not present'
-      @category = CATEGORIES[category] or raise 'Invalid category'
-    end
+      res = http.post('/index.php', parameterize(CREDENTIALS))
+      @cookie = res['Set-cookie'] or raise 'Authentication failed'
 
-    # POST to index an return the session cookie
-    def cookie
-      unless @cookie
-        data = [
-          "user=#{ENV['AUR_USERNAME']}",
-          "passwd=#{ENV['AUR_PASSWORD']}",
-          'remember_me=1'
-        ].join('&')
-
-        res = http.post('/index.php', data)
-        @cookie = res['Set-cookie'] or raise 'Authentication failed'
-      end
-
-      @cookie
-    end
-
-    # GET the submission form and parse the hidden token input
-    def token
-      res  = http.get('/pkgsubmit.php', 'Cookie' => cookie)
+      res  = http.get('/pkgsubmit.php', 'Cookie' => @cookie)
       html = Nokogiri::HTML(res.body)
-      html.css('input[name=token]').first.attributes['value'].value or raise 'Unable to parse token'
+
+      @token      = parse_token(html)      or raise 'Unable to parse token'
+      @categories = parse_categories(html) or raise 'Unable to parse categories'
     end
 
-    # Return a curl command suitible for upload
-    def submit_command
+    def command_for(file, category)
+      cid = @categories[category] or raise 'Invalid category'
+
       [
         '/usr/bin/curl',
         '-#',
         '-H', 'Expect:',
-        '-H', "'Cookie: #{cookie}'",
+        '-H', "'Cookie: #{@cookie}'",
         '-F', 'pkgsubmit=1',
-        '-F', "token=#{token}",
-        '-F', "category=#{category}",
-        '-F', "pfile=@#{taurball}",
-        "'#{AUR}/pkgsubmit.php'"
+        '-F', "token=#{@token}",
+        '-F', "category=#{cid}",
+        '-F', "pfile=@#{file}",
+        "'https://#{AUR}/pkgsubmit.php'"
       ].join(' ')
     end
 
     private
 
-    def http
-      uri = URI.parse(AUR)
+    def parameterize(params)
+      URI.escape(params.map{ |k,v| "#{k}=#{v}" }.join('&'))
+    end
 
-      Net::HTTP.new(uri.host, 443).tap do |http|
-        http.use_ssl = true
+    def parse_token(html)
+      html.css('input[name=token]').first.attributes['value'].value
+    end
+
+    def parse_categories(html)
+      html.css('select[name=category]').children.each_with_object({}) do |o,h|
+        name  = o.children.to_s
+        value = o.attributes['value'].value.to_i
+
+        h[name] = value unless name == 'Select Category'
       end
     end
   end
