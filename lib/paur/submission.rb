@@ -37,6 +37,7 @@ module Paur
         '-F', "token=#{@token}",
         '-F', "category=#{cid}",
         '-F', "pfile=@#{file}",
+        '-F', 'pkgsubmit=1',
         "'https://#{AUR}/submit'"
       ].join(' ')
     end
