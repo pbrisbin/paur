@@ -16,7 +16,7 @@ module Paur
       http = Net::HTTP.new(AUR, 443)
       http.use_ssl = true
 
-      res = http.post('/index.php', parameterize(CREDENTIALS))
+      res = http.post('/login', parameterize(CREDENTIALS))
       @cookie = res['Set-cookie'] or raise 'Authentication failed'
 
       res  = http.get('/pkgsubmit.php', 'Cookie' => @cookie)
@@ -34,11 +34,10 @@ module Paur
         '-#',
         '-H', 'Expect:',
         '-H', "'Cookie: #{@cookie}'",
-        '-F', 'pkgsubmit=1',
         '-F', "token=#{@token}",
         '-F', "category=#{cid}",
         '-F', "pfile=@#{file}",
-        "'https://#{AUR}/pkgsubmit.php'"
+        "'https://#{AUR}/submit'"
       ].join(' ')
     end
 
