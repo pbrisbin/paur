@@ -4,7 +4,9 @@ require 'uri'
 
 module Paur
   class Submission
-    AUR = 'aur.archlinux.org'
+    AUR    = 'aur.archlinux.org'
+    LOGIN  = '/login'
+    SUBMIT = '/submit'
 
     CREDENTIALS = {
       'user'        => ENV['AUR_USERNAME'],
@@ -16,10 +18,10 @@ module Paur
       http = Net::HTTP.new(AUR, 443)
       http.use_ssl = true
 
-      res = http.post('/login', parameterize(CREDENTIALS))
+      res = http.post(LOGIN, parameterize(CREDENTIALS))
       @cookie = res['Set-cookie'] or raise 'Authentication failed'
 
-      res  = http.get('/pkgsubmit.php', 'Cookie' => @cookie)
+      res  = http.get(SUBMIT, 'Cookie' => @cookie)
       html = Nokogiri::HTML(res.body)
 
       @token      = parse_token(html)      or raise 'Unable to parse token'
@@ -38,7 +40,7 @@ module Paur
         '-F', "category=#{cid}",
         '-F', "pfile=@#{file}",
         '-F', 'pkgsubmit=1',
-        "'https://#{AUR}/submit'"
+        "'https://#{AUR}#{SUBMIT}'"
       ].join(' ')
     end
 
